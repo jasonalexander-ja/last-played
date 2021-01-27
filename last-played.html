@@ -1,8 +1,9 @@
-
+<h3 class="ipsType_reset ipsWidget_title" style="background: #2d2d2d;">Last Played Songs</h3>
 <ul id="lastPlayedRoot" class="ipsDataList">
 </ul>
 <script>        
-    // Objects to be used in case of error 
+    // Object to be used in case of an API call error
+    // Structured like a valid API reponse for easier coding  
     var apiFailedObj = {
         song: {
             originalTitle: "Sorry...",
@@ -13,6 +14,7 @@
             }
         }
     }
+    // Objct to be used if there are no songs 
     var noSongs = {
         song: {
             originalTitle: "Sorry...",
@@ -24,23 +26,29 @@
         }
     }
     getLastPlayed();
+    // Sets the styles to be used by each element 
     var containerStyle = "background: #212121; margin-top: 5pt; margin-bottom: 5pt; display: flex;";
     var imageStyle = "height: 4rem; margin-right: 9px; float: left; border-radius: 50%;";
     var titleStyle = "font-size: 15px; font-weight: bold; overflow: hidden; white-space: nowrap;";
     var artistStyle = "white-space: nowrap; font-weight: bold; overflow: hidden;";
     var albumStyle = "overflow: hidden; white-space: nowrap;";
+    // Grabs the root element where all the elements will be appended to 
     var lastPlayedListRoot = document.getElementById("lastPlayedRoot");
     function getLastPlayed() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             // If sucess 
             if (this.readyState == 4 && this.status == 200 && this.responseText) 
-                if((JSON.parse(this.responseText))._embedded) makeDisplayFromJson((JSON.parse(this.responseText))._embedded)
+                // If there is a valid JSON body
+                if((JSON.parse(this.responseText))._embedded) 
+                    makeDisplayFromJson((JSON.parse(this.responseText))._embedded)
+                // If no valid JSON body, show no songs
                 else makeDisplayFromJson([noSongs]);
+            // If API call failed, show error message 
             else makeDisplayFromJson([apiFailedObj]);
         };
         // Specify the URL 
-        xhttp.open("GET", "https://api.radiopanel.co/api/v1/song-history--", true);
+        xhttp.open("GET", "https://api.radiopanel.co/api/v1/song-history", true);
         // Set auth headers 
         xhttp.setRequestHeader('x-tenant', '');
         xhttp.setRequestHeader('Authorization', '');
@@ -48,10 +56,14 @@
         xhttp.send();
     }
     function makeDisplayFromJson(songsArr) {
+        // Get rid off all the existing child elements 
         lastPlayedListRoot.innerHTML = "";
+        // If there are more than 3 songs, slice the array 
         var lastThree = songsArr.length > 3 ? songsArr.slice(0, 3) : songsArr;
 
+        // For each song, grab relevant data and make each HTML element
         lastThree.forEach(element => {
+            // Creates elements, in order top to bottom 
             var container = makeElement("container");
 
             var image = makeElement("image", element.song.graphic.medium); 
@@ -62,6 +74,7 @@
 
             var spacer = makeElement("spacer");
 
+            // Starts appending them from bottom to top
             textHolder.append(title);
             textHolder.append(artist);
             textHolder.append(album);
@@ -69,11 +82,15 @@
             container.append(image);
             container.append(textHolder);
 
+            // Append to the root element 
             lastPlayedListRoot.append(container);
             lastPlayedListRoot.append(spacer);
         });
-        console.log(lastThree);
     }
+
+    // Helper functions 
+
+    // This creates pre-defined html elements for each part of a song slide 
     function makeElement(type, text) {
         switch(type) {
             case "container": 
