@@ -1,0 +1,118 @@
+
+<ul id="lastPlayedRoot" class="ipsDataList">
+</ul>
+<script>        
+    // Objects to be used in case of error 
+    var apiFailedObj = {
+        song: {
+            originalTitle: "Sorry...",
+            artist: "Can't find the song history right now.",
+            album: "",
+            graphic: { 
+                medium: "https://i.ibb.co/C8w3fzG/disconected.png"
+            }
+        }
+    }
+    var noSongs = {
+        song: {
+            originalTitle: "Sorry...",
+            artist: "There doesn't seem to be a song history.",
+            album: "",
+            graphic: { 
+                medium: "https://i.ibb.co/W2SXBV0/55e07698bca8e4aa1761121600c818e0.jpg"
+            }
+        }
+    }
+    getLastPlayed();
+    var containerStyle = "background: #212121; margin-top: 5pt; margin-bottom: 5pt; display: flex;";
+    var imageStyle = "height: 4rem; margin-right: 9px; float: left; border-radius: 50%;";
+    var titleStyle = "font-size: 15px; font-weight: bold; overflow: hidden; white-space: nowrap;";
+    var artistStyle = "white-space: nowrap; font-weight: bold; overflow: hidden;";
+    var albumStyle = "overflow: hidden; white-space: nowrap;";
+    var lastPlayedListRoot = document.getElementById("lastPlayedRoot");
+    function getLastPlayed() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            // If sucess 
+            if (this.readyState == 4 && this.status == 200 && this.responseText) 
+                if((JSON.parse(this.responseText))._embedded) makeDisplayFromJson((JSON.parse(this.responseText))._embedded)
+                else makeDisplayFromJson([noSongs]);
+            else makeDisplayFromJson([apiFailedObj]);
+        };
+        // Specify the URL 
+        xhttp.open("GET", "https://api.radiopanel.co/api/v1/song-history--", true);
+        // Set auth headers 
+        xhttp.setRequestHeader('x-tenant', '');
+        xhttp.setRequestHeader('Authorization', '');
+        // And send 
+        xhttp.send();
+    }
+    function makeDisplayFromJson(songsArr) {
+        lastPlayedListRoot.innerHTML = "";
+        var lastThree = songsArr.length > 3 ? songsArr.slice(0, 3) : songsArr;
+
+        lastThree.forEach(element => {
+            var container = makeElement("container");
+
+            var image = makeElement("image", element.song.graphic.medium); 
+            var textHolder = document.createElement("div");
+            var title = makeElement("title", element.song.originalTitle);
+            var artist = makeElement("artist", element.song.artist);
+            var album = makeElement("album", element.song.album);
+
+            var spacer = makeElement("spacer");
+
+            textHolder.append(title);
+            textHolder.append(artist);
+            textHolder.append(album);
+
+            container.append(image);
+            container.append(textHolder);
+
+            lastPlayedListRoot.append(container);
+            lastPlayedListRoot.append(spacer);
+        });
+        console.log(lastThree);
+    }
+    function makeElement(type, text) {
+        switch(type) {
+            case "container": 
+                var listItem = document.createElement("li"); 
+                listItem.className = "ipsColumns ipsColumns_collapsePhone";
+                listItem.setAttribute("style", containerStyle);
+                return listItem;
+            break;
+            case "image":
+                var image = document.createElement("img");
+                image.setAttribute("src", text);
+                image.setAttribute("style", imageStyle);
+                return image;
+            break;
+            case "title": 
+                var title = document.createElement("h4");
+                title.setAttribute("style", titleStyle);
+                title.setAttribute("class", "ipsType_sectionHead ipsType_break");
+                title.innerHTML = text;
+                return title;
+            break; 
+            case "artist":
+                var artist = document.createElement("div");
+                artist.setAttribute("style", artistStyle);
+                artist.innerHTML = text; 
+                return artist;
+            break;
+            case "album": 
+                var album = document.createElement("div");
+                album.setAttribute("class", "ipsType_normal ipsType_break");
+                album.setAttribute("style", albumStyle);
+                album.innerHTML = text; 
+                return album;
+            break;
+            case "spacer": 
+                var spacer = document.createElement("li");
+                spacer.setAttribute("class", "ipsDataItem");
+                return spacer;
+            break;
+        }
+    }
+</script>
