@@ -1,6 +1,8 @@
-<h3 class="ipsType_reset ipsWidget_title" style="background: #2d2d2d;">Last Played Songs</h3>
-<ul id="lastPlayedRoot" class="ipsDataList">
-</ul>
+<div class="ipsWidget ipsWidget_vertical ipsBox ipsResponsive_block">
+    <h3 class="ipsType_reset ipsWidget_title" style="background: #2d2d2d;">Last Played Songs</h3>
+    <ul id="lastPlayedRoot" class="ipsDataList">
+    </ul>
+</div>
 <script>        
     // Object to be used in case of an API call error
     // Structured like a valid API reponse for easier coding  
@@ -26,13 +28,16 @@
         }
     }
     // Sets the styles to be used by each element 
-    var containerStyle = "background: #212121; margin-top: 5pt; margin-bottom: 5pt; display: flex;";
+    var containerStyle = "background: #212121; display: flex;";
     var imageStyle = "height: 4rem; margin-right: 9px; float: left; border-radius: 50%;";
     var titleStyle = "font-size: 15px; font-weight: bold; overflow: hidden; white-space: nowrap;";
     var artistStyle = "white-space: nowrap; font-weight: bold; overflow: hidden;";
     var albumStyle = "overflow: hidden; white-space: nowrap;";
     // Grabs the root element where all the elements will be appended to 
     var lastPlayedListRoot = document.getElementById("lastPlayedRoot");
+    // Set the event loop to reload the songs every 20 seconds
+    setInterval(function(){ getLastPlayed(); }, 20000);
+    // Entrypoint for on load 
     getLastPlayed();
     function getLastPlayed() {
         var xhttp = new XMLHttpRequest();
@@ -50,8 +55,9 @@
         // Specify the URL 
         xhttp.open("GET", "https://api.radiopanel.co/api/v1/song-history", true);
         // Set auth headers 
-        xhttp.setRequestHeader('x-tenant', '');
-        xhttp.setRequestHeader('Authorization', '');
+        xhttp.setRequestHeader('x-tenant', '562377c1-4d8a-41ae-aaeb-98a08a949d92');
+        xhttp.setRequestHeader('Authorization', 'Basic ZjBkOTIzNzEtNzUyNC00ZjgzLTg0OTEtMjA3YjE5OTI0MWQxOg==');
+
         // And send 
         xhttp.send();
     }
